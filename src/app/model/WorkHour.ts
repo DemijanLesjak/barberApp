@@ -5,5 +5,5 @@ export interface WorkHour {
   day: number
   startHour: number
   endHour: string
-  lunchTime?: LunchTime
+  lunchTime?: LunchTime 
 }

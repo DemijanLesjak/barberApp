@@ -1,0 +1,46 @@
+.content {
+  width: 100wv;
+  height: 100vh;
+  background-color: rgb(253 245 234);
+
+  .title-wrapper {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 65%;
+    margin: auto;
+
+      .page-title {
+      color: rgb(45 36 31);
+      font-family: 'Squada One';
+      font-weight: 500;
+      font-size: 58px;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      color:rgb(45 36 31);
+      font-family: 'Roboto Slab';
+      font-size: 17px;
+      letter-spacing: 1px;
+    }
+  }
+
+  .hero-image {
+    width: 65%;
+    margin: auto;
+    margin-top: 30px;
+
+    img {
+      max-width: 700px;
+      width: clamp(320px, 80%, 700px);
+      border: 2px solid black;
+      padding: 6px;
+      background-color: white;
+    }
+  }
+}
