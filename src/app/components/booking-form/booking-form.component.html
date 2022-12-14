@@ -1,1 +1,68 @@
-<p>booking-form works!</p>
+<div class="container" [formGroup]="bookingForm">
+  <p class="title">Book your appointment</p>
+  <div class="input-col">
+    <div class="input">
+      <input type="text" placeholder="First Name" formControlName="firstName">
+      <p class="error" *ngIf="bookingForm.controls.firstName.invalid && bookingForm.controls.firstName.touched">
+        Please enter first name
+      </p>
+    </div>
+    <div class="input">
+      <input type="text" placeholder="Last Name" formControlName="lastName">
+      <p class="error" *ngIf="bookingForm.controls.lastName.invalid && bookingForm.controls.lastName.touched">
+        Please enter last name
+      </p>
+    </div>
+  </div>
+  <div class="input-col">
+    <div class="input">
+      <input type="email" placeholder="Email" formControlName="email">
+      <p class="error" *ngIf="bookingForm.controls.email.invalid && bookingForm.controls.email.touched">
+        Please enter a valid email
+      </p>
+    </div>
+
+    <div class="input">
+      <input type="number" placeholder="Contact Number" formControlName="contact">
+      <p class="error" *ngIf="bookingForm.controls.contact.invalid && bookingForm.controls.contact.touched">
+        Please enter a phone number
+      </p>
+    </div>
+
+
+  </div>
+  <div class="input-col">
+    <div class="input">
+      <select formControlName="barber">
+        <option [ngValue]="null" [disabled]="true" >Select Barber</option>
+        <option [value]="barber.id" *ngFor="let barber of appointmentService.barbers$ | async; index as i">{{barber.firstName}} {{barber.lastName}}</option>
+      </select>
+      <p class="error" *ngIf="bookingForm.controls.barber.invalid && (bookingForm.controls.barber.touched || bookingForm.controls.time.touched)">
+        Please select a barber
+      </p>
+    </div>
+    <div class="input">
+    <select formControlName="service" placeholder="Select Service" >
+      <option [ngValue]="null" [disabled]="true" >Select Service</option>
+      <option [value]="service.id" *ngFor="let service of appointmentService.services$ | async; index as i">{{service.name}}</option>
+    </select>
+    <p class="error" *ngIf="bookingForm.controls.service.invalid && bookingForm.controls.service.touched">Please select a service</p>
+    </div>
+  </div>
+  <div class="input-col">
+    <div class="input">
+      <input type="date"  [min]="today" formControlName="date">
+    </div>
+    <div class="input">
+      <select placeholder="Select Time" formControlName="time">
+        <option *ngIf="intervals.length === 0" selected disabled>No available hours</option>
+        <option [value]="i" *ngFor="let interval of intervals; index as i">{{interval.time}}</option>
+      </select>
+      <p class="error" *ngIf="bookingForm.controls.time.invalid && bookingForm.controls.time.touched && intervals.length !== 0">Please pick a time</p>
+    </div>
+  </div>
+  <input class="price" type="text" value="{{servicePrice ? 'Price is ' + servicePrice + '€' : 'Select any service'}}" readonly>
+  <div class="book-button" [class.disabled]="bookingForm.invalid">
+    Book appointment
+  </div>
+</div>       

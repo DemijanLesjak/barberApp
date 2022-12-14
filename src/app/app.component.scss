@@ -1,7 +1,7 @@
 .content {
   width: 100wv;
   height: 100vh;
-  background-color: rgb(253 245 234);
+
 
   .title-wrapper {
     padding-top: 20px;
@@ -42,5 +42,12 @@
       padding: 6px;
       background-color: white;
     }
+  }
+
+  .form-container {
+    width: 100%;
+    position: relative;
+    top: -400px;
+    padding-left: 55%;
   }
 }

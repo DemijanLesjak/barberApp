@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Appointment } from '../model/Appointment';
 import { Barber } from '../model/Barber';
 import { Service } from '../model/Service';
@@ -23,11 +23,13 @@ export class AppointmentService {
   private readonly apiDomainBase = "http://localhost:3000";
   readonly fiveMinuteInterval = 5 * 60 * 1000;
   services$: BehaviorSubject<Service[]> = new BehaviorSubject<Service[]>([]);
+  barbers$: BehaviorSubject<Barber[]> = new BehaviorSubject<Barber[]>([]);
 
   constructor(private http: HttpClient) {
     this.getServices().subscribe();  
     this.getWorkingHours().subscribe();  
     this.getAvailableIntervals(1, new Date(1579680900000)).subscribe(res => console.log("all intervals", res));
+    this.getBarbers().subscribe();
   }
 
   getBarbers(): Observable<Barber[]> {
@@ -38,7 +40,7 @@ export class AppointmentService {
         }
         return res as Barber[];
       }),
-      tap(res => console.log("Barbers", res))
+      tap((res: Barber[])=> this.barbers$.next(res))
     );
   }
 
@@ -83,7 +85,10 @@ export class AppointmentService {
     );
   }
 
-  getAvailableIntervals(barberId: number, date: Date): Observable<WorkingInterval[]> {
+  getAvailableIntervals(barberId: number | null, date: Date | null): Observable<WorkingInterval[]> {
+    if (barberId === null || date === null) {
+      return of([]);
+    }
     const dayOfTheWeek = date.getDay();
     let startOfTheDay: number;
     let startOfLunch: number;
@@ -95,11 +100,11 @@ export class AppointmentService {
 
     return this.getBarbers().pipe(
       switchMap((barbers: Barber[]) => {
-        const selectedBarber: Barber | undefined = barbers.find((item: Barber) => item.id === barberId);
+        const selectedBarber: Barber | undefined = barbers.find((item: Barber) => item.id === +barberId);
         const todayWorkHour: WorkHour | undefined = selectedBarber?.workHours.find((item: WorkHour) => item.day === dayOfTheWeek)
         console.log("barber", selectedBarber);
         console.log("work hour", todayWorkHour);
-        if (!todayWorkHour || !todayWorkHour.lunchTime) {
+        if (!selectedBarber || !todayWorkHour || !todayWorkHour.lunchTime) {
           console.error("This barber doesnt have valid working hours");
           return [];
         }
