@@ -13,7 +13,8 @@ export enum IntervalState {
 }
 export interface WorkingInterval {
   time: string,
-  state: IntervalState
+  state: IntervalState,
+  timestamp: number
 }
 
 @Injectable({
@@ -21,14 +22,15 @@ export interface WorkingInterval {
 })
 export class AppointmentService {
   private readonly apiDomainBase = "http://localhost:3000";
-  readonly fiveMinuteInterval = 5 * 60 * 1000;
+  //Five minutes
+  // Minutes can be changed to some other compatible time slot.
+  readonly timeSlotInterval = 5 * 60 * 1000;
   services$: BehaviorSubject<Service[]> = new BehaviorSubject<Service[]>([]);
   barbers$: BehaviorSubject<Barber[]> = new BehaviorSubject<Barber[]>([]);
 
   constructor(private http: HttpClient) {
     this.getServices().subscribe();  
     this.getWorkingHours().subscribe();  
-    this.getAvailableIntervals(1, new Date(1579680900000)).subscribe(res => console.log("all intervals", res));
     this.getBarbers().subscribe();
   }
 
@@ -85,7 +87,10 @@ export class AppointmentService {
     );
   }
 
-  getAvailableIntervals(barberId: number | null, date: Date | null): Observable<WorkingInterval[]> {
+  getAvailableIntervals(
+    barberId: number | null,
+    date: Date | null,
+    selectedService: Service): Observable<WorkingInterval[]> {
     if (barberId === null || date === null) {
       return of([]);
     }
@@ -132,16 +137,23 @@ export class AppointmentService {
         const dailyIntervals: WorkingInterval[] = [];
 
         let startTimestamp: number = startOfTheDay;
-        let endTimestamp: number = startTimestamp + this.fiveMinuteInterval;
-        while(endTimestamp < endOfTheDay) {
-          const interval: WorkingInterval = {time: new Date(startTimestamp).toTimeString(), state: IntervalState.available};
+        let endTimestamp: number = startTimestamp + this.timeSlotInterval;
+        // Create work intervals with time slot allocation and set them status.
+        while(endTimestamp <= endOfTheDay + 1) {
+          const interval: WorkingInterval = {
+            time: new Date(startTimestamp).toTimeString().slice(0, 5),
+            state: IntervalState.available,
+            timestamp: startTimestamp  
+          };
 
+          //Check if any interval is already occupied by appointments.
           const isOccupied = this.isIntervalOccupied(startTimestamp, endTimestamp, items);
 
           if (isOccupied) {
             interval.state = IntervalState.full;
           }
 
+          // Mark allocation for lunch
           if (startOfLunch <= startTimestamp && startTimestamp < endOfLunch ||
               startOfLunch < endTimestamp && endTimestamp <= endOfLunch
             ) {
@@ -149,13 +161,14 @@ export class AppointmentService {
             }
           
           dailyIntervals.push(interval);
-          startTimestamp = startTimestamp + this.fiveMinuteInterval;
-          endTimestamp = endTimestamp + this.fiveMinuteInterval;
+          startTimestamp = startTimestamp + this.timeSlotInterval;
+          endTimestamp = endTimestamp + this.timeSlotInterval;
         }
         
 
         console.log("Daily intervals", dailyIntervals);
-        return dailyIntervals;
+        // Filter out not available slot for specific service.
+        return this.filterOnlyRelevantIntervals(dailyIntervals, selectedService);
       })
     );
   }
@@ -177,5 +190,37 @@ export class AppointmentService {
       return (item.startDate <= startTimestamp && startTimestamp < endOfAppointment) ||
              (item.startDate < endTimestamp && endTimestamp <= endOfAppointment);
     });
+  }
+
+  private filterOnlyRelevantIntervals(intervals: WorkingInterval[], service: Service): WorkingInterval[] {
+    //Clean up intervals and remove ones that are already full
+    const filteredIntervals = intervals.filter((item: WorkingInterval) => {
+      return item.state === IntervalState.available;
+    });
+    const timeSlotInMinutes: number = this.timeSlotInterval / 1000 / 60;
+    const freeSlotsNeeded = service.durationMinutes / timeSlotInMinutes;
+    // Loop over intervals and check if selected service fits to next available slot. 
+    // If not set it as full.
+    for (let i = 0; i < filteredIntervals.length; i++) {
+      const futureIntervalIndexToCheck = (i + freeSlotsNeeded) - 1;
+      if (futureIntervalIndexToCheck >= filteredIntervals.length) {
+        filteredIntervals[i].state = IntervalState.full;
+        continue;
+      }
+      const startOfAllocation = filteredIntervals[i].timestamp;
+      const endOfAllocation = startOfAllocation + service.durationMinutes * 60 * 1000;
+      if (endOfAllocation !== filteredIntervals[futureIntervalIndexToCheck].timestamp + this.timeSlotInterval) {
+        filteredIntervals[i].state = IntervalState.full;
+      }
+
+    }
+
+    // Finally run filter again and remove items that were set as full above.
+    const finalIntervals = filteredIntervals.filter((item: WorkingInterval) => {
+      return item.state === IntervalState.available;
+    });
+
+    console.log(finalIntervals);
+    return finalIntervals;
   }
 }

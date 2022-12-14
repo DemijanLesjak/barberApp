@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Service } from 'src/app/model/Service';
-import { AppointmentService, WorkingInterval } from 'src/app/services/appointment.service';
+import { AppointmentService, IntervalState, WorkingInterval } from 'src/app/services/appointment.service';
 
 interface BookingFormGroup {
   firstName: FormControl<string | null>;
@@ -24,6 +24,8 @@ export class BookingFormComponent implements OnInit{
   today = new Date().toISOString().slice(0, 10);
   intervals: WorkingInterval[] = [];
   servicePrice = "";
+  selectedService: Service | undefined;
+  IntervalState = IntervalState;
 
   bookingForm: FormGroup<BookingFormGroup> = this.fb.group({
     firstName: ["", [Validators.required]],
@@ -57,21 +59,26 @@ export class BookingFormComponent implements OnInit{
       if (res === null) {
         return;
       }
-      this.servicePrice = services.find(item => {
+      this.selectedService = services.find(item => {
         return item.id === +res;
-      })?.price ?? "";
-      this.cd.markForCheck();
+      });
+      this.refreshIntervals();
     });
   }
 
   refreshIntervals() {
+    if (!this.selectedService) {
+      return;
+    }
     this.appointmentService.getAvailableIntervals(
       this.bookingForm.controls.barber.value,
-      new Date(this.bookingForm.controls.date.value as string))
+      new Date(this.bookingForm.controls.date.value as string),
+      this.selectedService)
       .subscribe((res: WorkingInterval[]) => {
         this.intervals = res;
         this.cd.markForCheck();
       });
-
   }
+
+
 }
