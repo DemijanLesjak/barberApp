@@ -86,7 +86,7 @@ export class BookingFormComponent implements OnInit{
 
   book() {
     this.appointmentService.postAppointment(
-      this.intervals[this.bookingForm.controls.time.value].timestamp,
+      this.intervals[this.bookingForm.controls.time.value - 1].timestamp,
       this.bookingForm.controls.barber.value,
       this.bookingForm.controls.service.value
     ).subscribe(res => {

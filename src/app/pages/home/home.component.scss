@@ -1,4 +1,6 @@
 .content {
+  display: flex;
+  flex-direction: column;
 
   .title-wrapper {
     padding-top: 20px;
@@ -9,13 +11,13 @@
     width: 65%;
     margin: auto;
 
-      .page-title {
+    .page-title {
       color: rgb(45 36 31);
       font-family: 'Squada One';
       font-weight: 500;
       font-size: 58px;
       letter-spacing: 1px;
-      margin-bottom: 20px;
+      margin-bottom: 28px;
       text-transform: uppercase;
     }
 
@@ -28,22 +30,60 @@
   }
 
   .hero-image {
-    width: 65%;
     margin: auto;
-    margin-top: 30px;
+    margin-top: 60px;
+    padding-right: 10%;
 
     img {
-      max-width: 700px;
-      width: clamp(320px, 80%, 700px);
+      max-width: 890px;
+      width: 100%;
       border: 2px solid black;
-      padding: 6px;
+      padding: 10px;
       background-color: white;
+      box-sizing: border-box;
     }
   }
 
   .form-container {
     position: relative;
-    top: -400px;
+    top: -480px;
     padding-left: 55%;
   }
+
+  @media screen and (max-width: 1024px) {
+    .title-wrapper {
+      width: 80%;
+    }
+
+    .hero-image {
+      width: 80%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      padding: 0;
+
+      img {
+        max-width: none;
+      }
+    }
+
+    .form-container {
+      width: 80%;
+      top: 0;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      margin: auto;
+
+      app-booking-form {
+        width: 100%;
+        margin-bottom: 50px;
+      }
+    }
+
+    .subtitle.second {
+      display: none;
+    }
+  }
 }
+

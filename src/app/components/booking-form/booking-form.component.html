@@ -58,7 +58,7 @@
         <option *ngIf="intervals.length === 0" selected disabled>No available hours</option>
         <option [ngValue]="null" [disabled]="true" >Select Time</option>
         <option 
-          [value]="i"
+          [value]="i + 1"
           *ngFor="let interval of intervals; index as i">
           {{interval.time}}
         </option>

@@ -1,33 +1,35 @@
 .container {
-  width: 355px;
-  background-color: rgb(29 32 36);
-  padding: 20px;
+  width: 440px;
+  background-color: rgb(28 40 67);
+  padding: 33px;
+  box-sizing: border-box;
   .title {
+    text-transform: uppercase;
     font-family: "Squada One";
     font-size: 37px;
     letter-spacing: 1.8px;
     color: rgb(245 207 127);
     margin: 0;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
   }
 
   .input-col {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 33px;
   }
 
   input, select{
     background-color: white;
     color: #70603b;
     border: none;
-    height: 36px;
+    height: 42px;
     font-family: "Roboto Slab";
     font-size: 14px;
     letter-spacing: 0.6px;
     width: 100%;
     border-radius: 2px;
-    padding: 0 5px;
+    padding: 0 10px;
     box-sizing: border-box;
 
     &:focus-visible {
@@ -57,8 +59,8 @@
 
 
   .book-button {
-    height: 42px;
-    border-radius: 21px;
+    height: 56px;
+    border-radius: 28px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -80,6 +82,25 @@
 
     &:active {
       opacity: 0.8;
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .container .input-col {
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 0;
+    .input {
+      width: 100%;
+      margin-bottom: 20px;
     }
   }
 }
