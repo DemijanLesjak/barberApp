@@ -30,7 +30,6 @@ export class AppointmentService {
 
   constructor(private http: HttpClient) {
     this.getServices().subscribe();  
-    this.getWorkingHours().subscribe();  
     this.getBarbers().subscribe();
   }
 
@@ -56,8 +55,7 @@ export class AppointmentService {
           item.startDate  = item.startDate * 1000;
           return item;
         });
-      }),
-      tap((res: Appointment[]) => console.log("Appointments", res))
+      })
     );
   }
 
@@ -82,8 +80,7 @@ export class AppointmentService {
           return [];
         }
         return res as WorkHour[];
-      }),
-      tap((res: WorkHour[]) => console.log("Working hours", res))
+      })
     );
   }
 
@@ -110,15 +107,11 @@ export class AppointmentService {
     let endOfTheDay: number;
     let endOfLunch: number;
 
-
-    console.log("Selected date", date.toDateString());
-
     return this.getBarbers().pipe(
       switchMap((barbers: Barber[]) => {
         const selectedBarber: Barber | undefined = barbers.find((item: Barber) => item.id === +barberId);
         const todayWorkHour: WorkHour | undefined = selectedBarber?.workHours.find((item: WorkHour) => item.day === dayOfTheWeek)
-        console.log("barber", selectedBarber);
-        console.log("work hour", todayWorkHour);
+
         if (!selectedBarber || !todayWorkHour || !todayWorkHour.lunchTime) {
           console.error("This barber doesnt have valid working hours");
           return [];
@@ -129,16 +122,11 @@ export class AppointmentService {
         endOfTheDay = date.setHours(+todayWorkHour.endHour - 1, 59, 59, 999);
         endOfLunch = date.setHours(+todayWorkHour.lunchTime.startHour, +todayWorkHour.lunchTime.durationMinutes - 1);
 
-        console.log("start of the day", new Date(startOfTheDay).toISOString());
-        console.log("end of the day", new Date(endOfTheDay).toISOString());
-        console.log("start of the lunch", new Date(startOfLunch).toISOString());
-        console.log("end of the lunch", new Date(endOfLunch).toISOString());
         return this.getAppointments();
       }),
       //Filter appontements per barber and todays working hours.
       map((items: Appointment[]) => {
         return items.filter((item: Appointment) => {
-          console.log("Appointment date", new Date(item.startDate).toISOString());
           // Filter only appointments that should be displayed depending on selections.
           return item.barberId === barberId && (startOfTheDay <= item.startDate && item.startDate < startOfLunch) || (endOfLunch <= item.startDate && item.startDate < endOfTheDay); 
         })
@@ -175,8 +163,6 @@ export class AppointmentService {
           endTimestamp = endTimestamp + this.timeSlotInterval;
         }
         
-
-        console.log("Daily intervals", dailyIntervals);
         // Filter out not available slot for specific service.
         return this.filterOnlyRelevantIntervals(dailyIntervals, selectedService);
       })
@@ -230,7 +216,6 @@ export class AppointmentService {
       return item.state === IntervalState.available;
     });
 
-    console.log(finalIntervals);
     return finalIntervals;
   }
 }

@@ -49,12 +49,10 @@ export class BookingFormComponent implements OnInit{
     this.refreshIntervals();
     this.bookingForm.controls.date.valueChanges.subscribe(res => {
       this.refreshIntervals();
-      console.log(res)
     });
 
     this.bookingForm.controls.barber.valueChanges.subscribe(res => {
       this.refreshIntervals();
-      console.log(res)
     });
 
     this.bookingForm.controls.service.valueChanges.subscribe(res => {
@@ -93,7 +91,7 @@ export class BookingFormComponent implements OnInit{
       console.log("Posted", res);
       this.router.navigate(["/success"]);
     }, err => {
-      console.error("Posting was not successfull.")
+      console.error("Posting was not successfull.", err);
       this.postingError = "Posting was not successfull."
     });
   }
