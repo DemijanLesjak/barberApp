@@ -56,6 +56,7 @@
     <div class="input">
       <select placeholder="Select Time" formControlName="time">
         <option *ngIf="intervals.length === 0" selected disabled>No available hours</option>
+        <option [ngValue]="null" [disabled]="true" >Select Time</option>
         <option 
           [value]="i"
           *ngFor="let interval of intervals; index as i">
@@ -66,7 +67,8 @@
     </div>
   </div>
   <input class="price" type="text" value="{{selectedService?.price ? 'Price is ' + selectedService?.price + '€' : 'Select any service'}}" readonly>
-  <div class="book-button" [class.disabled]="bookingForm.invalid">
+  <div class="book-button" [class.disabled]="bookingForm.invalid" (click)="book()">
     Book appointment
   </div>
+  <p class="error" *ngIf="postingError.length > 0">{{postingError}}</p>
 </div>       

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Service } from 'src/app/model/Service';
 import { AppointmentService, IntervalState, WorkingInterval } from 'src/app/services/appointment.service';
 
@@ -26,6 +27,7 @@ export class BookingFormComponent implements OnInit{
   servicePrice = "";
   selectedService: Service | undefined;
   IntervalState = IntervalState;
+  postingError = "";
 
   bookingForm: FormGroup<BookingFormGroup> = this.fb.group({
     firstName: ["", [Validators.required]],
@@ -40,7 +42,8 @@ export class BookingFormComponent implements OnInit{
   constructor(
     private fb: FormBuilder,
     public appointmentService: AppointmentService,
-    private cd: ChangeDetectorRef) {}
+    private cd: ChangeDetectorRef,
+    private router: Router) {}
 
   ngOnInit(): void {
     this.refreshIntervals();
@@ -71,13 +74,28 @@ export class BookingFormComponent implements OnInit{
       return;
     }
     this.appointmentService.getAvailableIntervals(
-      this.bookingForm.controls.barber.value,
+      +this.bookingForm.controls.barber.value,
       new Date(this.bookingForm.controls.date.value as string),
       this.selectedService)
       .subscribe((res: WorkingInterval[]) => {
         this.intervals = res;
+        this.bookingForm.controls.time.setValue(null);
         this.cd.markForCheck();
       });
+  }
+
+  book() {
+    this.appointmentService.postAppointment(
+      this.intervals[this.bookingForm.controls.time.value].timestamp,
+      this.bookingForm.controls.barber.value,
+      this.bookingForm.controls.service.value
+    ).subscribe(res => {
+      console.log("Posted", res);
+      this.router.navigate(["/success"]);
+    }, err => {
+      console.error("Posting was not successfull.")
+      this.postingError = "Posting was not successfull."
+    });
   }
 
 

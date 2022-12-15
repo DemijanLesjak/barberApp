@@ -6,11 +6,15 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BookingFormComponent } from './components/booking-form/booking-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SuccessComponent } from './pages/success/success.component';
+import { HomeComponent } from './pages/home/home.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    BookingFormComponent
+    BookingFormComponent,
+    SuccessComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

@@ -87,6 +87,16 @@ export class AppointmentService {
     );
   }
 
+  postAppointment(startDate: number, barberId: number, serviceId: number): Observable<any> {
+    const body = {
+      "startDate": startDate / 1000,
+      "barberId": +barberId,
+      "serviceId": +serviceId
+     }
+     
+    return this.http.post(`${this.apiDomainBase}/appointments`, body);
+  }
+
   getAvailableIntervals(
     barberId: number | null,
     date: Date | null,
@@ -130,7 +140,7 @@ export class AppointmentService {
         return items.filter((item: Appointment) => {
           console.log("Appointment date", new Date(item.startDate).toISOString());
           // Filter only appointments that should be displayed depending on selections.
-          return item.barberId === barberId && (startOfTheDay < item.startDate && item.startDate < startOfLunch) || (endOfLunch < item.startDate && item.startDate < endOfTheDay); 
+          return item.barberId === barberId && (startOfTheDay <= item.startDate && item.startDate < startOfLunch) || (endOfLunch <= item.startDate && item.startDate < endOfTheDay); 
         })
       }),
       map((items: Appointment[]) => {
